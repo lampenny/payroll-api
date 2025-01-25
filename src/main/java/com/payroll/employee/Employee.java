@@ -47,6 +47,14 @@ public class Employee {
 		return this.lastName;
 	}
 
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
 	public void setName(String name) {
 		String[] parts = name.split(" ");
 		this.firstName = parts[0];
