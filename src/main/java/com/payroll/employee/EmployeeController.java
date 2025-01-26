@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,21 +51,33 @@ public class EmployeeController {
 	}
 
 	@PutMapping("/employees/{id}")
-	Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
+	ResponseEntity<?> replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
 
-		return repository.findById(id) //
+		Employee updatedEmployee = repository.findById(id)
 				.map(employee -> {
 					employee.setName(newEmployee.getName());
 					employee.setRole(newEmployee.getRole());
 					return repository.save(employee);
-				}) //
+				})
 				.orElseGet(() -> {
 					return repository.save(newEmployee);
 				});
+
+		EntityModel<Employee> entityModel = assembler.toModel(updatedEmployee);
+
+		// It is debatable whether HTTP 201 Created carries the right semantics,
+		// since we do not necessarily "create" a new resource.
+		// However, it comes pre-loaded with a Location response header, so we use it.
+		return ResponseEntity
+				.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+				.body(entityModel);
 	}
 
 	@DeleteMapping("/employees/{id}")
-	void deleteEmployee(@PathVariable Long id) {
+	ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
+
 		repository.deleteById(id);
+
+		return ResponseEntity.noContent().build();
 	}
 }
