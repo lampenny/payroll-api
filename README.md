@@ -10,7 +10,7 @@ Example endpoints:
 {
   "id": 1,
   "firstName": "Betty",
-	"lastName": "Suarez,
+  "lastName": "Suarez,
   "role": "personal assistant",
   "_links": {
     "self": {
